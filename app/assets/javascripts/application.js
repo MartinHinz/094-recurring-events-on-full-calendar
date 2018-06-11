@@ -12,10 +12,11 @@
 //
 //= require jquery
 //= require jquery_ujs
-//= require jquery_ui
+//= require jquery-ui
 //= require turbolinks
-//= require calendar
 //= require bootstrap-sprockets
 //= require momentjs
 //= require daterangepicker
-//= require_tree .
+//= require calendar
+//= require full_calendar.js
+// require_tree .
