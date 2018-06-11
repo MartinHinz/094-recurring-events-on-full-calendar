@@ -23,43 +23,71 @@ $(document).ready(function() {
             });
 
         });
-
-
-        /* initialize the calendar
-        -----------------------------------------------------------------*/
-
-        $('#calendar').fullCalendar({
-            header: {
-                left: 'prev,next today',
-                center: 'title',
-                right: 'month,agendaWeek,agendaDay'
-            },
-            editable: true,
-            droppable: true, // this allows things to be dropped onto the calendar !!!
-            drop: function(date, allDay) { // this function is called when something is dropped
-
-                // retrieve the dropped element's stored Event Object
-                var originalEventObject = $(this).data('eventObject');
-
-                // we need to copy it, so that multiple events don't have a reference to the same object
-                var copiedEventObject = $.extend({}, originalEventObject);
-
-                // assign it the date that was reported
-                copiedEventObject.start = date;
-                copiedEventObject.allDay = allDay;
-
-                // render the event on the calendar
-                // the last `true` argument determines if the event "sticks" (http://arshaw.com/fullcalendar/docs/event_rendering/renderEvent/)
-                $('#calendar').fullCalendar('renderEvent', copiedEventObject, true);
-
-                // is the "remove after drop" checkbox checked?
-                if ($('#drop-remove').is(':checked')) {
-                    // if so, remove the element from the "Draggable Events" list
-                    $(this).remove();
-                }
-
-            }
-        });
-
-
     });
+
+    var initialize_calendar;
+    initialize_calendar = function() {
+      $('#calendar').each(function(){
+        var calendar = $(this);
+        calendar.fullCalendar({
+          header: {
+            left: 'prev,next today',
+            center: 'title',
+            right: 'month,agendaWeek,agendaDay'
+          },
+          selectable: true,
+          selectHelper: true,
+          droppable: true,
+          editable: true,
+          eventLimit: true,
+          eventSources: [
+            '/events.json',
+            '/recurring_events.json'
+          ],
+          select: function(start, end) {
+            $.getScript('/events/new', function() {
+              $('#event_date_range').val(moment(start).format("MM/DD/YYYY HH:mm") + ' - ' + moment(end).format("MM/DD/YYYY HH:mm"))
+              date_range_picker();
+              $('.start_hidden').val(moment(start).format('YYYY-MM-DD HH:mm'));
+              $('.end_hidden').val(moment(end).format('YYYY-MM-DD HH:mm'));
+            });
+
+            calendar.fullCalendar('unselect');
+          },
+          drop: function(date, jsEvent, ui, resourceId) {
+  console.log('drop', date.format(), resourceId);
+
+  // is the "remove after drop" checkbox checked?
+  if ($('#drop-remove').is(':checked')) {
+    // if so, remove the element from the "Draggable Events" list
+    $(this).remove();
+  }
+},
+
+          eventDrop: function(event, delta, revertFunc) {
+            event_data = {
+              event: {
+                id: event.id,
+                start: event.start.format(),
+                end: event.end.format()
+              }
+            };
+            $.ajax({
+                url: event.update_url,
+                data: event_data,
+                type: 'PATCH'
+            });
+          },
+
+          eventClick: function(event, jsEvent, view) {
+            $.getScript(event.edit_url, function() {
+              $('#event_date_range').val(moment(event.start).format("MM/DD/YYYY HH:mm") + ' - ' + moment(event.end).format("MM/DD/YYYY HH:mm"))
+              date_range_picker();
+              $('.start_hidden').val(moment(event.start).format('YYYY-MM-DD HH:mm'));
+              $('.end_hidden').val(moment(event.end).format('YYYY-MM-DD HH:mm'));
+            });
+          }
+        });
+      })
+    };
+    $(document).on('turbolinks:load', initialize_calendar);

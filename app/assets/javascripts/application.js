@@ -17,6 +17,7 @@
 //= require bootstrap-sprockets
 //= require momentjs
 //= require daterangepicker
+//= require date_range_picker
 //= require calendar
 //= require full_calendar.js
 // require_tree .
