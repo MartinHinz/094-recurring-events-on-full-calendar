@@ -15,7 +15,15 @@ class Event < ApplicationRecord
   validates :title, presence: true
   attr_accessor :date_range
 
+  def self.unscheduled()
+    select { |record| record.not_scheduled? }
+  end
+
   def all_day_event?
-    self.start == self.start.midnight && self.end == self.end.midnight ? true : false
+    !not_scheduled? && self.start == self.start.midnight && self.end == self.end.midnight ? true : false
+  end
+
+  def not_scheduled?
+    self.start.blank? && self.end.blank?
   end
 end

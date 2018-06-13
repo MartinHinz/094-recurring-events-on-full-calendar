@@ -56,7 +56,12 @@ $(document).ready(function() {
           },
           drop: function(date, jsEvent, ui, resourceId) {
   console.log('drop', date.format(), resourceId);
-
+  $.getScript('/events/new', function() {
+    $('#event_date_range').val(date.format("MM/DD/YYYY HH:mm") + ' - ' + date.format("MM/DD/YYYY HH:mm"))
+    date_range_picker();
+    $('.start_hidden').val(date.format('YYYY-MM-DD HH:mm'));
+    $('.end_hidden').val(date.format('YYYY-MM-DD HH:mm'));
+  });
   // is the "remove after drop" checkbox checked?
   if ($('#drop-remove').is(':checked')) {
     // if so, remove the element from the "Draggable Events" list

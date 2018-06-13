@@ -2,14 +2,18 @@
 
 <div id='external-events'>
 <h4>Draggable Events</h4>
-<div class='fc-event'>My Event 1</div>
-<div class='fc-event'>My Event 2</div>
-<div class='fc-event'>My Event 3</div>
-<div class='fc-event'>My Event 4</div>
-<div class='fc-event'>My Event 5</div>
+<% Event.unscheduled.each do |event| %>
+<div class='fc-event'><%=event.title%></div>
+<%end%>
 <p>
 <input type='checkbox' id='drop-remove' /> <label for='drop-remove'>remove after drop</label>
 </p>
+<%= simple_form_for Event.new, remote: true do |f| %>
+  <%= f.input :title %>
+  <div class="form-actions">
+    <%= f.button :submit %>
+  </div>
+<% end %>
 </div>
 
 <div id='calendar'></div>
